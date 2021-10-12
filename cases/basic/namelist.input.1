@@ -1,8 +1,6 @@
  &time_control
  restart=.false.,
- restart_interval=120
- end_hour=03,03
- start_hour=00,00
+ restart_interval=9
  run_days                            = 0,
  run_hours                           = 0,
  run_minutes                         = 0,
@@ -10,17 +8,19 @@
  start_year                          = 2016, 2016, 2000,
  start_month                         = 03,   03,   01,
  start_day                           = 23,   23,   24,
+ start_hour                          = 00,   00,   00,
  start_minute                        = 00,   00,   00,
  start_second                        = 00,   00,   00,
  end_year                            = 2016, 2016, 2000,
  end_month                           = 03,   03,   03,
  end_day                             = 23,   23,   25,
+ end_hour                            = 03,   03,   00,
  end_minute                          = 00,   00,   00,
  end_second                          = 00,   00,   00,
  interval_seconds                    = 10800
  input_from_file                     = .true.,.true.,.true.,
  frames_per_outfile                  = 1, 1, 1000,
- history_interval                    = 60,   60,   60,
+ history_interval                    = 3,    3,    60,
  io_form_history                     = 2
  io_form_restart                     = 2
  io_form_input                       = 2
