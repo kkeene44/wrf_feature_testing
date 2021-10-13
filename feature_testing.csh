@@ -63,7 +63,7 @@ set WRF_DIR	= $1
 shift
 set TEST_DIR = $WRF_DIR:t
 if ( $VERBOSE == TRUE ) then
-	echo "The WRF test case is type $TEST_DIR"
+	echo "The WRF init type is type $TEST_DIR"
 endif
 
 #	Full namelist directory
@@ -75,6 +75,10 @@ if ( $VERBOSE == TRUE ) then
 endif
 set NML_DIR	= $1
 shift
+set TEST_CASE = $NML_DIR:t
+if ( $VERBOSE == TRUE ) then
+	echo "The WRF namelist case = $TEST_CASE"
+endif
 
 #	Binary data: full directory
 #	EXAMPLE: /wrf/input/additional
@@ -129,6 +133,7 @@ pushd $WRF_DIR >& /dev/null
 	else
 		set PRE_PROC = ideal.exe
 	endif
+	set PRE_ROOT = `echo $PRE_PROC:r | tr "[a-z]" "[A-Z]"`
 
 #	==========================================================
 #	Step 1: Run real
@@ -139,16 +144,19 @@ pushd $WRF_DIR >& /dev/null
 	cp namelist.input.1 namelist.input
 	if ( $PAR_TYPE == mpi ) then
 		./$PRE_PROC >& /dev/null
-		cp rsl.out.0000 print.out.$PRE_PROC
+		cp rsl.out.0000 $PRE_ROOT.print.out
 	else
-		./$PRE_PROC >&! print.out.$PRE_PROC
+		./$PRE_PROC >&! $PRE_ROOT.print.out
 	endif
 	
-	${ORIG_DIR}/check_OK.csh $VERBOSE $PRE_PROC print.out.$PRE_PROC 
+	${ORIG_DIR}/check_OK.csh $VERBOSE $PRE_PROC $PRE_ROOT.print.out
 	set OK_STEP = $status
 	set OVERALL = ( $OVERALL && $OK_STEP )
 	if ( $OVERALL != 0 ) then
 		exit (91)
+		touch ${SHARED_DIR}/FAIL_RUN_REAL_em_real_34_em_real_${TEST_CASE}
+	else
+		touch ${SHARED_DIR}/SUCCESS_RUN_REAL_em_real_34_em_real_${TEST_CASE}
 	endif
 
 #	==========================================================
@@ -159,17 +167,20 @@ pushd $WRF_DIR >& /dev/null
 	
 	cp namelist.input.2 namelist.input
 	if ( $PAR_TYPE == mpi ) then
-		mpirun -np $NUM_PROC ./wrf.exe >& /dev/null
-		cp rsl.out.0000 print.out.wrf.exe
+		mpirun -np $NUM_PROC --oversubscribe ./wrf.exe >& /dev/null
+		cp rsl.out.0000 WRF.print.out
 	else
-		./wrf.exe >&! print.out.wrf.exe
+		./wrf.exe >&! WRF.print.out
 	endif
 	
-	${ORIG_DIR}/check_OK.csh $VERBOSE wrf.exe print.out.wrf.exe
+	${ORIG_DIR}/check_OK.csh $VERBOSE wrf.exe WRF.print.out
 	set OK_STEP = $status
 	set OVERALL = ( $OVERALL && $OK_STEP )
 	if ( $OVERALL != 0 ) then
 		exit (92)
+		touch ${SHARED_DIR}/FAIL_RUN_WRF1_em_real_34_em_real_${TEST_CASE}
+	else
+		touch ${SHARED_DIR}/SUCCESS_RUN_WRF1_em_real_34_em_real_${TEST_CASE}
 	endif
 
 	if ( -d HOLD ) then
@@ -186,17 +197,20 @@ pushd $WRF_DIR >& /dev/null
 	
 	cp namelist.input.3 namelist.input
 	if ( $PAR_TYPE == mpi ) then
-		mpirun -np $NUM_PROC ./wrf.exe >& /dev/null
-		cp rsl.out.0000 print.out.wrf.exe
+		mpirun -np $NUM_PROC --oversubscribe ./wrf.exe >& /dev/null
+		cp rsl.out.0000 WRF.print.out
 	else
-		./wrf.exe >&! print.out.wrf.exe
+		./wrf.exe >&! WRF.print.out
 	endif
 	
-	${ORIG_DIR}/check_OK.csh $VERBOSE wrf.exe print.out.wrf.exe
+	${ORIG_DIR}/check_OK.csh $VERBOSE wrf.exe WRF.print.out
 	set OK_STEP = $status
 	set OVERALL = ( $OVERALL && $OK_STEP )
 	if ( $OVERALL != 0 ) then
 		exit (93)
+		touch ${SHARED_DIR}/FAIL_RUN_WRF2_em_real_34_em_real_${TEST_CASE}
+	else
+		touch ${SHARED_DIR}/SUCCESS_RUN_WRF2_em_real_34_em_real_${TEST_CASE}
 	endif
 
 #	==========================================================
@@ -224,6 +238,9 @@ pushd $WRF_DIR >& /dev/null
 		set OVERALL = ( $OVERALL && $OK_STEP )
 		if ( $OVERALL != 0 ) then
 			exit (94)
+			touch ${SHARED_DIR}/FAIL_RUN_COMPARE_em_real_34_em_real_${TEST_CASE}_$f
+		else
+			touch ${SHARED_DIR}/SUCCESS_RUN_COMPARE_em_real_34_em_real_${TEST_CASE}_$f
 		endif
 	end
 	
@@ -232,9 +249,6 @@ pushd $WRF_DIR >& /dev/null
 #	==========================================================
 
 	if ( $CLEAN_UP == TRUE ) then
-		rm -rf HOLD
-		rm -rf rsl*
-		rm -rf wrfo*
 		rm -rf wrfr*
 		rm -rf wrfi*
 		rm -rf wrfb*
@@ -242,7 +256,10 @@ pushd $WRF_DIR >& /dev/null
 		rm -rf fort.88
 		rm -rf fort.98
 		rm -rf met_em*
-		rm -rf print.out.*
+#		rm -rf wrfo*
+#		rm -rf HOLD
+#		rm -rf *.print.out
+#		rm -rf rsl*
 	endif
 
 	echo " "
