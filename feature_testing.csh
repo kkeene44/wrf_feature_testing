@@ -3,16 +3,18 @@
 if ( ${#argv} == 0 ) then
 	echo
 	echo "USAGE within the standard WRF docker container:"
-	echo "./feature_testing.csh /wrf/wrfoutput /wrf/WRF/test/em_real /wrf/cases/basic /wrf/input/additional /wrf/input/standard mpi-4"
+	echo "./feature_testing.csh /wrf/wrfoutput /wrf/WRF/test/em_real em_realM /wrf/cases/basic /wrf/input/additional /wrf/input/standard mpi-8"
 	echo where
 	echo The full path to the shared directory = /wrf/wrfoutput
 	echo The full path to the WRF test directory = /wrf/WRF/test/em_real
+	echo The WRF designator for this suite of tests = em_realM
 	echo The full path to the namelist directory = /wrf/cases/basic
 	echo The full path to the additional binary data files for WRF = /wrf/input/additional
 	echo The full path to the metgrid data if a real case = /wrf/input/standard, ELSE SKIP
-	echo "The combination of which parallel option (ser, omp, mpi) and how many procs = mpi-4"
+	echo "The combination of which parallel option (ser, omp, mpi) and how many procs = mpi-8"
 	echo
 	echo Please, no trailing "/" characters at the end of the directory names
+	echo "Please #2, currently, these restart / feature tests are only for MPI"
 	echo
 	exit 0
 endif
@@ -65,6 +67,16 @@ set TEST_DIR = $WRF_DIR:t
 if ( $VERBOSE == TRUE ) then
 	echo "The WRF init type is type $TEST_DIR"
 endif
+
+#	The WRF test suite designator from the build.csh script.
+#	EXAMPLE: em_realM
+#	We use this when naming the SUCCESS* files
+
+if ( $VERBOSE == TRUE ) then
+	echo "The WRF test suite name designator = $1"
+endif
+set WRF_NAME	= $1
+shift
 
 #	Full namelist directory
 #	EXAMPLE: /wrf/cases/em_real/basic
@@ -154,9 +166,9 @@ pushd $WRF_DIR >& /dev/null
 	set OVERALL = ( $OVERALL && $OK_STEP )
 	if ( $OVERALL != 0 ) then
 		exit (91)
-		touch ${SHARED_DIR}/FAIL_RUN_REAL_em_real_34_em_real_${TEST_CASE}
+		touch ${SHARED_DIR}/FAIL_RUN_REAL_em_real_34_${WRF_NAME}_${TEST_CASE}
 	else
-		touch ${SHARED_DIR}/SUCCESS_RUN_REAL_em_real_34_em_real_${TEST_CASE}
+		touch ${SHARED_DIR}/SUCCESS_RUN_REAL_em_real_34_${WRF_NAME}_${TEST_CASE}
 	endif
 
 #	==========================================================
@@ -178,9 +190,9 @@ pushd $WRF_DIR >& /dev/null
 	set OVERALL = ( $OVERALL && $OK_STEP )
 	if ( $OVERALL != 0 ) then
 		exit (92)
-		touch ${SHARED_DIR}/FAIL_RUN_WRF1_em_real_34_em_real_${TEST_CASE}
+		touch ${SHARED_DIR}/FAIL_RUN_WRF1_em_real_34_${WRF_NAME}_${TEST_CASE}
 	else
-		touch ${SHARED_DIR}/SUCCESS_RUN_WRF1_em_real_34_em_real_${TEST_CASE}
+		touch ${SHARED_DIR}/SUCCESS_RUN_WRF1_em_real_34_${WRF_NAME}_${TEST_CASE}
 	endif
 
 	if ( -d HOLD ) then
@@ -208,9 +220,9 @@ pushd $WRF_DIR >& /dev/null
 	set OVERALL = ( $OVERALL && $OK_STEP )
 	if ( $OVERALL != 0 ) then
 		exit (93)
-		touch ${SHARED_DIR}/FAIL_RUN_WRF2_em_real_34_em_real_${TEST_CASE}
+		touch ${SHARED_DIR}/FAIL_RUN_WRF2_em_real_34_${WRF_NAME}_${TEST_CASE}
 	else
-		touch ${SHARED_DIR}/SUCCESS_RUN_WRF2_em_real_34_em_real_${TEST_CASE}
+		touch ${SHARED_DIR}/SUCCESS_RUN_WRF2_em_real_34_${WRF_NAME}_${TEST_CASE}
 	endif
 
 #	==========================================================
@@ -238,9 +250,9 @@ pushd $WRF_DIR >& /dev/null
 		set OVERALL = ( $OVERALL && $OK_STEP )
 		if ( $OVERALL != 0 ) then
 			exit (94)
-			touch ${SHARED_DIR}/FAIL_RUN_COMPARE_em_real_34_em_real_${TEST_CASE}_$f
+			touch ${SHARED_DIR}/FAIL_RUN_COMPARE_em_real_34_${WRF_NAME}_${TEST_CASE}_$f
 		else
-			touch ${SHARED_DIR}/SUCCESS_RUN_COMPARE_em_real_34_em_real_${TEST_CASE}_$f
+			touch ${SHARED_DIR}/SUCCESS_RUN_COMPARE_em_real_34_${WRF_NAME}_${TEST_CASE}_$f
 		endif
 	end
 	
@@ -256,10 +268,6 @@ pushd $WRF_DIR >& /dev/null
 		rm -rf fort.88
 		rm -rf fort.98
 		rm -rf met_em*
-#		rm -rf wrfo*
-#		rm -rf HOLD
-#		rm -rf *.print.out
-#		rm -rf rsl*
 	endif
 
 	echo " "
