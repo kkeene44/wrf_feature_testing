@@ -3,11 +3,11 @@
 if ( ${#argv} == 0 ) then
 	echo
 	echo "USAGE within the standard WRF docker container:"
-	echo "./feature_testing.csh /wrf/wrfoutput /wrf/WRF/test/em_real em_realM /wrf/cases/basic /wrf/input/additional /wrf/input/standard mpi-8"
+	echo "./feature_testing.csh /wrf/wrfoutput /wrf/WRF/test/em_real restartA /wrf/cases/basic /wrf/input/additional /wrf/input/standard mpi-8"
 	echo where
 	echo The full path to the shared directory = /wrf/wrfoutput
 	echo The full path to the WRF test directory = /wrf/WRF/test/em_real
-	echo The WRF designator for this suite of tests = em_realM
+	echo The WRF designator for this suite of tests = restartA
 	echo The full path to the namelist directory = /wrf/cases/basic
 	echo The full path to the additional binary data files for WRF = /wrf/input/additional
 	echo The full path to the metgrid data if a real case = /wrf/input/standard, ELSE SKIP
@@ -69,7 +69,7 @@ if ( $VERBOSE == TRUE ) then
 endif
 
 #	The WRF test suite designator from the build.csh script.
-#	EXAMPLE: em_realM
+#	EXAMPLE: restartA
 #	We use this when naming the SUCCESS* files
 
 if ( $VERBOSE == TRUE ) then
