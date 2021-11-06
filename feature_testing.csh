@@ -17,6 +17,9 @@ if ( ${#argv} == 0 ) then
 	echo "Please #2, currently, these restart / feature tests are only for MPI"
 	echo
 	exit 0
+else if ( ${#argv} == 1 ) then
+	set SUPER_CLEAN = TRUE
+	goto clean_it_all
 endif
 
 #	==========================================================
@@ -28,6 +31,8 @@ set VERBOSE	= FALSE
 
 set CLEAN_UP	= FALSE
 set CLEAN_UP	= TRUE
+
+set SUPER_CLEAN = FALSE
 
 #	==========================================================
 #	Some needed info, all internal
@@ -277,5 +282,15 @@ pushd $WRF_DIR >& /dev/null
 	echo " "
 
 popd >& /dev/null
+
+clean_it_all:
+	if ( $SUPER_CLEAN == TRUE ) then
+		cd $1
+		rm -rf wrfo*
+		rm -rf REAL.print.out
+		rm -rf WRF.print.out
+		rm -rf rsl*
+		rm -rf HOLD
+	endif
 
 exit (0)
